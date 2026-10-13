@@ -1,1138 +1,681 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crypto Escape: Mine or Get Crushed!</title>
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        pixel: {
-                            bg: '#090814',
-                            card: '#131129',
-                            border: '#2f2b5c',
-                            gold: '#fcc419',
-                            orange: '#ff922b',
-                            red: '#ff6b6b',
-                            cyan: '#22d3ee',
-                            purple: '#a855f7'
-                        }
-                    },
-                    fontFamily: {
-                        mono: ['Courier New', 'Courier', 'monospace']
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        body {
-            background-color: #05040a;
-            color: #f1f5f9;
-            font-family: 'Courier New', Courier, monospace;
+        :root {
+            --bg-dark: #0a0812;
+            --panel-bg: #161224;
+            --panel-border: #382d54;
+            --accent-gold: #ffb703;
+            --accent-orange: #fb8500;
+            --text-main: #f8f9fa;
+            --text-dim: #9d9db0;
+            --success: #2ec4b6;
+            --font-pixel: 'Courier New', Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
             user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 20%, rgba(251, 133, 0, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 80% 80%, rgba(255, 183, 3, 0.05) 0%, transparent 50%);
+        }
+
+        /* Screen Management */
+        .screen {
+            display: none;
+            width: 100%;
+            max-width: 960px;
+            padding: 20px;
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hero / Narrative Section */
+        .hero-banner {
+            width: 100%;
+            background: linear-gradient(180deg, #1f1833 0%, var(--panel-bg) 100%);
+            border: 3px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 25px;
+            position: relative;
             overflow: hidden;
         }
 
-        .pixel-border {
-            border: 3px solid #2f2b5c;
-            box-shadow: 4px 4px 0px #000;
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, var(--accent-orange), var(--accent-gold), var(--accent-orange));
         }
 
-        .pixel-btn {
-            box-shadow: 0 4px 0 #000;
-            transition: transform 0.05s ease, box-shadow 0.05s ease;
+        h1.game-title {
+            font-family: var(--font-pixel);
+            font-size: 2.8rem;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 3px 3px 0px #000, 0 0 15px rgba(255, 183, 3, 0.4);
+            margin-bottom: 10px;
         }
 
-        .pixel-btn:active {
+        .tagline {
+            font-size: 1.2rem;
+            color: var(--accent-orange);
+            font-weight: bold;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .lore-box {
+            background: rgba(10, 8, 18, 0.6);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            text-align: left;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            color: #d1d1e0;
+            font-size: 1.05rem;
+        }
+
+        .lore-box p {
+            margin-bottom: 12px;
+        }
+
+        .lore-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .lore-highlight {
+            color: var(--accent-gold);
+            font-weight: bold;
+        }
+
+        /* Feature Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .feature-card {
+            background: var(--panel-bg);
+            border: 2px solid var(--panel-border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-gold);
+        }
+
+        .feature-icon {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .feature-card h3 {
+            color: var(--accent-gold);
+            font-family: var(--font-pixel);
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .feature-card p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* Button Styling */
+        .btn {
+            background: linear-gradient(180deg, var(--accent-gold) 0%, var(--accent-orange) 100%);
+            color: #000;
+            font-family: var(--font-pixel);
+            font-size: 1.3rem;
+            font-weight: bold;
+            padding: 16px 40px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #b35900, 0 10px 20px rgba(0,0,0,0.4);
+            transition: all 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 #b35900, 0 12px 22px rgba(0,0,0,0.5);
+        }
+
+        .btn:active {
             transform: translateY(4px);
-            box-shadow: 0 0 0 #000;
+            box-shadow: 0 2px 0 #b35900, 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(180deg, #382d54 0%, #211a33 100%);
+            color: var(--text-main);
+            box-shadow: 0 4px 0 #110d1c;
+            font-size: 1rem;
+            padding: 10px 20px;
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 6px 0 #110d1c;
+        }
+
+        /* Game Screen Layout */
+        .game-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stage-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .stage-btn {
+            background: var(--panel-bg);
+            border: 2px solid var(--panel-border);
+            color: var(--text-dim);
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: var(--font-pixel);
+            font-size: 0.85rem;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            flex: 1;
+            text-align: center;
+        }
+
+        .stage-btn.active {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+            background: #251d38;
+        }
+
+        .stage-btn.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: #221c33;
+        }
+
+        /* Canvas Container */
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border: 4px solid var(--panel-border);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            overflow: hidden;
         }
 
         canvas {
+            width: 100%;
+            height: 100%;
             display: block;
             image-rendering: pixelated;
-            image-rendering: crisp-edges;
         }
 
-        /* Screen shake animation class for UI container */
-        .shake {
-            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        /* Overlay UI inside Canvas */
+        .canvas-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 8, 18, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
         }
 
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-2px, 0, 0); }
-            20%, 80% { transform: translate3d(4px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
-            40%, 60% { transform: translate3d(6px, 0, 0); }
+        .canvas-overlay.hidden {
+            display: none;
+        }
+
+        .overlay-title {
+            font-family: var(--font-pixel);
+            font-size: 2rem;
+            color: var(--accent-gold);
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .overlay-desc {
+            color: var(--text-dim);
+            margin-bottom: 20px;
+            max-width: 500px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .controls-hint {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            background: rgba(255,255,255,0.05);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .controls-hint span {
+            color: var(--accent-gold);
+            font-weight: bold;
+        }
+
+        footer {
+            margin-top: 40px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            text-align: center;
         }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col justify-between items-center p-2 sm:p-4 select-none">
+<body>
 
-    <!-- TOP HEADER / STATS HUD -->
-    <header class="w-full max-w-5xl flex justify-between items-center bg-pixel-card/90 border-2 border-pixel-border px-3 py-2 rounded z-20">
-        <!-- Title & Brand -->
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-pixel-gold text-black font-black flex items-center justify-center border-2 border-white text-lg">
-                ⛏️
+    <!-- PAGE 1: LANDING & LORE PAGE -->
+    <div id="landing-screen" class="screen active">
+        <div class="hero-banner">
+            <h1 class="game-title">Crypto Escape</h1>
+            <div class="tagline">Mine or Get Crushed!</div>
+
+            <div class="lore-box">
+                <p><strong>THE BACKSTORY:</strong> Deep inside the decentralized subterranean caverns, Sam the miner spent years hacking away at high-difficulty blocks searching for the ultimate genesis yield.</p>
+                <p>But he struck a unstable volatility vein! The ground fractured, triggering a massive, rolling <span class="lore-highlight">Crypto Boulder</span> formed from dense, unyielding market pressure. It's rolling down the shaft, absorbing everything in its wake!</p>
+                <p>Equipped only with his worn boots and heavy pickaxe, Sam must sprint through 5 dangerous subterranean zones, dodge hazard traps, collect rare coins, and outrun the rolling monolith before getting liquidated!</p>
             </div>
-            <div>
-                <h1 class="text-sm sm:text-base font-black text-pixel-gold tracking-wider leading-none">CRYPTO ESCAPE</h1>
-                <p class="text-[9px] sm:text-[11px] text-gray-400">MINE OR GET CRUSHED!</p>
+
+            <button class="btn" onclick="navigateToGame()">Enter The Mine</button>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🏃‍♂️</div>
+                <h3>The Escape</h3>
+                <p>Keep sprinting forward! Double jump over pits, spike traps, and lava flows while keeping distance from the boulder.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🗺️</div>
+                <h3>5 Progressive Stages</h3>
+                <p>Unlock new environments as you survive. Journey from dark crystal mines up into volcanic trenches and sky citadels.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🪙</div>
+                <h3>On-Chain Rewards</h3>
+                <p>Collect coins while running. Reaching the end of each stage locks in your victory and progress!</p>
             </div>
         </div>
 
-        <!-- HUD Counters -->
-        <div class="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm font-bold font-mono">
-            <div class="flex items-center gap-1.5 text-pixel-gold">
-                <i class="fa-solid fa-coins text-sm"></i>
-                <span id="hud-coins">0</span>
-            </div>
-            <div class="flex items-center gap-1.5 text-pixel-cyan">
-                <i class="fa-solid fa-person-running text-sm"></i>
-                <span id="hud-distance">0m</span>
-            </div>
-            <div class="hidden sm:flex items-center gap-1.5 text-pixel-purple">
-                <i class="fa-solid fa-trophy text-sm"></i>
-                <span id="hud-highscore">0m</span>
+        <footer>
+            <p>Crypto Escape Arcade • Built for Web Browsers</p>
+        </footer>
+    </div>
+
+    <!-- PAGE 2: GAMEPLAY SCREEN -->
+    <div id="game-screen" class="screen">
+        <div class="game-header">
+            <button class="btn btn-secondary" onclick="navigateToLanding()">← Story & Lore</button>
+            <div style="font-family: var(--font-pixel); color: var(--accent-gold); font-weight: bold;">
+                Coins: <span id="total-coins-display">0</span>
             </div>
         </div>
 
-        <!-- Action Controls (Sound & Pause) -->
-        <div class="flex items-center gap-2">
-            <button id="btn-sound" onclick="toggleSound()" class="w-8 h-8 sm:w-9 sm:h-9 bg-pixel-bg border border-pixel-border text-pixel-cyan hover:text-white rounded flex items-center justify-center pixel-btn">
-                <i id="sound-icon" class="fa-solid fa-volume-high"></i>
-            </button>
-            <button id="btn-pause" onclick="togglePause()" class="w-8 h-8 sm:w-9 sm:h-9 bg-pixel-bg border border-pixel-border text-pixel-gold hover:text-white rounded flex items-center justify-center pixel-btn">
-                <i id="pause-icon" class="fa-solid fa-pause"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- GAME CONTAINER & CANVAS -->
-    <main class="relative w-full max-w-5xl flex-grow my-2 border-2 border-pixel-border bg-black rounded overflow-hidden flex items-center justify-center">
-        
-        <!-- HTML5 Canvas -->
-        <canvas id="gameCanvas" class="w-full h-full"></canvas>
-
-        <!-- ACTIVE POWERUP HUD OVERLAY -->
-        <div id="powerup-hud" class="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none z-10"></div>
-
-        <!-- OVERLAY: START MENU -->
-        <div id="screen-start" class="absolute inset-0 bg-black/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center z-30">
-            <div class="animate-bounce text-5xl sm:text-6xl mb-2">🏃‍♂️💥🪨</div>
-            <h2 class="text-2xl sm:text-4xl font-black text-pixel-gold mb-1 tracking-widest drop-shadow-[0_4px_0_#000]">
-                CRYPTO ESCAPE
-            </h2>
-            <p class="text-xs sm:text-sm text-gray-300 max-w-md mb-6 leading-relaxed">
-                A giant rolling <span class="text-pixel-orange font-bold">CRYPTO BOULDER</span> is chasing you through the underground mine shaft! Jump over traps, slide under cables, collect coins, and don't get liquidated!
-            </p>
-
-            <div class="bg-pixel-card border border-pixel-border p-3 rounded mb-6 text-xs text-gray-300 space-y-1 font-mono">
-                <div><span class="text-pixel-gold font-bold">SPACE / UP / TAP:</span> Jump</div>
-                <div><span class="text-pixel-cyan font-bold">DOWN / S / SWIPE:</span> Slide & Duck</div>
-                <div><span class="text-pixel-purple font-bold">POWERUPS:</span> Pickaxe Smashes Rocks • Boots Boost Speed</div>
-            </div>
-
-            <button onclick="startGame()" class="px-8 py-3 bg-pixel-gold hover:bg-yellow-400 text-black font-black text-base sm:text-lg uppercase border-2 border-white rounded shadow-[4px_4px_0px_#000] pixel-btn cursor-pointer">
-                START MINING <i class="fa-solid fa-play ml-1"></i>
-            </button>
+        <!-- Stage Navigation Bar -->
+        <div class="stage-selector" id="stage-bar">
+            <!-- Rendered via JS -->
         </div>
 
-        <!-- OVERLAY: PAUSE SCREEN -->
-        <div id="screen-pause" class="absolute inset-0 bg-black/80 backdrop-blur-sm hidden flex flex-col items-center justify-center p-4 text-center z-30">
-            <h2 class="text-3xl font-black text-pixel-gold mb-4 tracking-wider">GAME PAUSED</h2>
-            <button onclick="togglePause()" class="px-6 py-2 bg-pixel-cyan hover:bg-cyan-400 text-black font-bold text-sm uppercase border border-white rounded pixel-btn mb-3">
-                Resume Game
-            </button>
-            <button onclick="resetGameToStart()" class="px-6 py-2 bg-pixel-bg border border-pixel-border text-gray-300 hover:text-white font-bold text-xs uppercase rounded pixel-btn">
-                Quit to Menu
-            </button>
-        </div>
+        <!-- Game Canvas & Overlays -->
+        <div class="canvas-container">
+            <canvas id="gameCanvas" width="800" height="450"></canvas>
 
-        <!-- OVERLAY: GAME OVER ("LIQUIDATED!") -->
-        <div id="screen-gameover" class="absolute inset-0 bg-black/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4 text-center z-30">
-            <div class="text-4xl sm:text-5xl mb-2 animate-pulse">💥🪨💥</div>
-            <h2 class="text-3xl sm:text-5xl font-black text-pixel-red mb-1 tracking-widest drop-shadow-[0_4px_0_#000]">
-                LIQUIDATED!
-            </h2>
-            <p class="text-xs sm:text-sm text-gray-400 mb-4 font-mono">The Crypto Boulder caught up and crushed your position!</p>
-
-            <!-- Final Stats Card -->
-            <div class="bg-pixel-card border-2 border-pixel-border p-4 rounded max-w-sm w-full space-y-3 mb-6 font-mono text-left">
-                <div class="flex justify-between text-xs sm:text-sm border-b border-pixel-border/60 pb-2">
-                    <span class="text-gray-400">Distance Survived:</span>
-                    <span id="go-distance" class="text-pixel-cyan font-bold">0m</span>
-                </div>
-                <div class="flex justify-between text-xs sm:text-sm border-b border-pixel-border/60 pb-2">
-                    <span class="text-gray-400">Crypto Coins Collected:</span>
-                    <span id="go-coins" class="text-pixel-gold font-bold">0</span>
-                </div>
-                <div class="flex justify-between text-xs sm:text-sm border-b border-pixel-border/60 pb-2">
-                    <span class="text-gray-400">Final Score:</span>
-                    <span id="go-score" class="text-pixel-purple font-bold">0 pts</span>
-                </div>
-                <div class="flex justify-between text-xs sm:text-sm">
-                    <span class="text-gray-400">Personal Best:</span>
-                    <span id="go-highscore" class="text-pixel-gold font-bold">0m</span>
-                </div>
-            </div>
-
-            <div class="flex flex-wrap justify-center gap-3">
-                <button onclick="restartGame()" class="px-6 py-3 bg-pixel-gold hover:bg-yellow-400 text-black font-black text-sm uppercase border-2 border-white rounded shadow-[4px_4px_0px_#000] pixel-btn cursor-pointer">
-                    TRY AGAIN <i class="fa-solid fa-rotate-right ml-1"></i>
-                </button>
-                <button onclick="shareScore()" class="px-5 py-3 bg-pixel-purple hover:bg-purple-500 text-white font-bold text-sm uppercase border border-white rounded pixel-btn cursor-pointer">
-                    <i class="fa-solid fa-share-nodes mr-1"></i> Share Score
-                </button>
+            <!-- Menu Overlay -->
+            <div id="menu-overlay" class="canvas-overlay">
+                <div class="overlay-title" id="overlay-title">STAGE 1: CRYSTAL SHAFT</div>
+                <div class="overlay-desc" id="overlay-desc">Escape the rolling boulder through the underground crystal mines!</div>
+                <button class="btn" id="start-btn" onclick="startGame()">Start Run</button>
+                <div class="controls-hint">Controls: Press <span>SPACE</span> or <span>UP ARROW</span> / <span>TAP SCREEN</span> to Jump (Double Jump supported)</div>
             </div>
         </div>
-    </main>
 
-    <!-- BOTTOM MOBILE TOUCH CONTROLS -->
-    <footer class="w-full max-w-5xl flex justify-between gap-3 h-16 sm:h-20 z-20">
-        <!-- Slide / Duck Touch Button -->
-        <button id="btn-touch-slide" class="flex-1 bg-pixel-card border-2 border-pixel-border rounded flex flex-col items-center justify-center text-pixel-cyan active:bg-pixel-cyan/20 pixel-btn select-none touch-none">
-            <i class="fa-solid fa-arrow-down text-lg sm:text-xl"></i>
-            <span class="text-[10px] sm:text-xs font-bold font-mono">SLIDE / DUCK</span>
-        </button>
-
-        <!-- Jump Touch Button -->
-        <button id="btn-touch-jump" class="flex-1 bg-pixel-card border-2 border-pixel-border rounded flex flex-col items-center justify-center text-pixel-gold active:bg-pixel-gold/20 pixel-btn select-none touch-none">
-            <i class="fa-solid fa-arrow-up text-lg sm:text-xl"></i>
-            <span class="text-[10px] sm:text-xs font-bold font-mono">JUMP</span>
-        </button>
-    </footer>
+        <footer>
+            <p>Use Space / Up / Tap to jump over obstacles and outrun the crypto rock!</p>
+        </footer>
+    </div>
 
     <script>
-        /* ==========================================================================
-           AUDIO SYNTHESIZER (Web Audio API - Pure Procedural Sound Effects)
-           ========================================================================== */
-        class SoundEngine {
-            constructor() {
-                this.ctx = null;
-                this.enabled = true;
-            }
+        /* --------------------------------------------------
+           GAME DATA & CONFIGURATION
+        -------------------------------------------------- */
+        const STAGES = [
+            { id: 1, name: "1. Crystal Shaft", target: 500, speed: 4, bgTop: "#0f0c1b", bgBot: "#1f1833", rockColor: "#8d99ae", hazard: "Rock Crag" },
+            { id: 2, name: "2. Lava Trench", target: 750, speed: 4.8, bgTop: "#1f0a0a", bgBot: "#3b1111", rockColor: "#d90429", hazard: "Lava Pit" },
+            { id: 3, name: "3. Ice Cavern", target: 1000, speed: 5.5, bgTop: "#0a192f", bgBot: "#172a45", rockColor: "#48cae4", hazard: "Ice Spikes" },
+            { id: 4, name: "4. Bull Temple", target: 1250, speed: 6.2, bgTop: "#1a1423", bgBot: "#2d1e2f", rockColor: "#ffb703", hazard: "Gold Pillar" },
+            { id: 5, name: "5. Sky Citadel", target: 1500, speed: 7.0, bgTop: "#081c15", bgBot: "#1b4332", rockColor: "#7400b8", hazard: "Plasma Trap" }
+        ];
 
-            init() {
-                if (!this.ctx) {
-                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    if (AudioContext) {
-                        this.ctx = new AudioContext();
-                    }
-                }
-                if (this.ctx && this.ctx.state === 'suspended') {
-                    this.ctx.resume();
-                }
-            }
+        let state = {
+            unlockedStage: parseInt(localStorage.getItem('ce_unlocked_stage') || '1'),
+            totalCoins: parseInt(localStorage.getItem('ce_coins') || '0'),
+            currentStageIdx: 0,
+            isPlaying: false,
+            score: 0,
+            coins: 0
+        };
 
-            playJump() {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-
-                const now = this.ctx.currentTime;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(150, now);
-                osc.frequency.exponentialRampToValueAtTime(450, now + 0.15);
-
-                gain.gain.setValueAtTime(0.12, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                osc.start(now);
-                osc.stop(now + 0.15);
-            }
-
-            playCoin() {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-
-                const now = this.ctx.currentTime;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(987.77, now); // B5
-                osc.frequency.setValueAtTime(1318.51, now + 0.08); // E6
-
-                gain.gain.setValueAtTime(0.15, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                osc.start(now);
-                osc.stop(now + 0.2);
-            }
-
-            playPowerup() {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-
-                const now = this.ctx.currentTime;
-                const notes = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
-                notes.forEach((freq, idx) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(freq, now + idx * 0.06);
-
-                    gain.gain.setValueAtTime(0.15, now + idx * 0.06);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.06 + 0.12);
-
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-
-                    osc.start(now + idx * 0.06);
-                    osc.stop(now + idx * 0.06 + 0.12);
-                });
-            }
-
-            playHit() {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-
-                const now = this.ctx.currentTime;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(120, now);
-                osc.frequency.exponentialRampToValueAtTime(40, now + 0.25);
-
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                osc.start(now);
-                osc.stop(now + 0.25);
-            }
-
-            playSmash() {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-
-                const now = this.ctx.currentTime;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(300, now);
-                osc.frequency.linearRampToValueAtTime(80, now + 0.15);
-
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                osc.start(now);
-                osc.stop(now + 0.15);
-            }
-
-            playGameOver() {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-
-                const now = this.ctx.currentTime;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(220, now);
-                osc.frequency.exponentialRampToValueAtTime(50, now + 0.6);
-
-                gain.gain.setValueAtTime(0.25, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.6);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                osc.start(now);
-                osc.stop(now + 0.6);
-            }
+        /* --------------------------------------------------
+           NAVIGATION & UI
+        -------------------------------------------------- */
+        function navigateToGame() {
+            document.getElementById('landing-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.add('active');
+            renderStageBar();
+            setupStage(state.currentStageIdx);
         }
 
-        const soundEngine = new SoundEngine();
+        function navigateToLanding() {
+            state.isPlaying = false;
+            document.getElementById('game-screen').classList.remove('active');
+            document.getElementById('landing-screen').classList.add('active');
+        }
 
-        /* ==========================================================================
-           GAME ENGINE STATE & CANVAS SETUP
-           ========================================================================== */
+        function renderStageBar() {
+            const bar = document.getElementById('stage-bar');
+            bar.innerHTML = '';
+            document.getElementById('total-coins-display').innerText = state.totalCoins;
+
+            STAGES.forEach((st, idx) => {
+                const btn = document.createElement('button');
+                const isLocked = st.id > state.unlockedStage;
+                btn.className = `stage-btn ${idx === state.currentStageIdx ? 'active' : ''} ${isLocked ? 'locked' : ''}`;
+                btn.innerText = isLocked ? `🔒 Stage ${st.id}` : st.name;
+                btn.onclick = () => {
+                    if (!isLocked) {
+                        state.currentStageIdx = idx;
+                        renderStageBar();
+                        setupStage(idx);
+                    }
+                };
+                bar.appendChild(btn);
+            });
+        }
+
+        function setupStage(idx) {
+            const stage = STAGES[idx];
+            document.getElementById('overlay-title').innerText = stage.name.toUpperCase();
+            document.getElementById('overlay-desc').innerText = `Target Distance: ${stage.target}m | Hazard: ${stage.hazard}. Outrun the boulder!`;
+            document.getElementById('start-btn').innerText = "Start Run";
+            document.getElementById('menu-overlay').classList.remove('hidden');
+            drawStaticPreview();
+        }
+
+        /* --------------------------------------------------
+           GAME ENGINE (CANVAS)
+        -------------------------------------------------- */
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Virtual internal dimensions for crisp pixel scaling
-        const V_WIDTH = 800;
-        const V_HEIGHT = 450;
-        const GROUND_Y = 370;
-
-        let gameRunning = false;
-        let gamePaused = false;
-        let animationFrameId = null;
-        let lastTime = 0;
-
-        // Player Stats
-        let distanceMeters = 0;
-        let coinsCollected = 0;
-        let highScore = parseInt(localStorage.getItem('crypto_escape_highscore') || '0', 10);
-
-        // Gameplay Variables
-        let baseSpeed = 5.5;
-        let currentSpeed = 5.5;
-        let boulderOffset = 0; // Distance of boulder behind miner (0 = crushed, 200+ = far ahead)
-        const MAX_BOULDER_DIST = 260;
-        const MIN_BOULDER_DIST = 20;
-
-        /* GAME OBJECTS */
-        
-        // 1. MINER (PLAYER)
-        const miner = {
-            x: 280,
-            y: GROUND_Y - 48,
-            width: 36,
-            height: 48,
-            vy: 0,
-            gravity: 0.75,
-            jumpForce: -13.5,
-            isJumping: false,
-            isSliding: false,
-            slideTimer: 0,
-            runFrame: 0,
-            animTimer: 0,
-            invulnerableTimer: 0,
-            powerups: {
-                pickaxe: 0, // Golden Pickaxe timer
-                boots: 0    // Speed Boots timer
-            },
-
-            reset() {
-                this.x = 280;
-                this.y = GROUND_Y - this.height;
-                this.vy = 0;
-                this.isJumping = false;
-                this.isSliding = false;
-                this.slideTimer = 0;
-                this.runFrame = 0;
-                this.animTimer = 0;
-                this.invulnerableTimer = 0;
-                this.powerups.pickaxe = 0;
-                this.powerups.boots = 0;
-            },
-
-            jump() {
-                if (!this.isJumping) {
-                    this.vy = this.jumpForce;
-                    this.isJumping = true;
-                    if (this.isSliding) {
-                        this.isSliding = false;
-                        this.height = 48;
-                    }
-                    soundEngine.playJump();
-                }
-            },
-
-            slide() {
-                if (!this.isSliding && !this.isJumping) {
-                    this.isSliding = true;
-                    this.height = 26;
-                    this.y = GROUND_Y - this.height;
-                    this.slideTimer = 45; // ~0.75 seconds frame duration
-                    soundEngine.playJump(); // slide SFX
-                }
-            },
-
-            update() {
-                // Gravity & Jump Physics
-                if (this.isJumping) {
-                    this.vy += this.gravity;
-                    this.y += this.vy;
-
-                    if (this.y >= GROUND_Y - this.height) {
-                        this.y = GROUND_Y - this.height;
-                        this.vy = 0;
-                        this.isJumping = false;
-                    }
-                }
-
-                // Slide duration timer
-                if (this.isSliding) {
-                    this.slideTimer--;
-                    if (this.slideTimer <= 0) {
-                        this.isSliding = false;
-                        this.height = 48;
-                        this.y = GROUND_Y - this.height;
-                    }
-                }
-
-                // Powerup Timers
-                if (this.powerups.pickaxe > 0) this.powerups.pickaxe--;
-                if (this.powerups.boots > 0) this.powerups.boots--;
-                if (this.invulnerableTimer > 0) this.invulnerableTimer--;
-
-                // Animation frame tick
-                this.animTimer++;
-                if (this.animTimer % 6 === 0) {
-                    this.runFrame = (this.runFrame + 1) % 4;
-                }
-            },
-
-            draw(ctx) {
-                ctx.save();
-
-                // Invulnerability flicker effect
-                if (this.invulnerableTimer > 0 && Math.floor(this.invulnerableTimer / 4) % 2 === 0) {
-                    ctx.globalAlpha = 0.4;
-                }
-
-                const px = this.x;
-                const py = this.y;
-
-                if (this.isSliding) {
-                    // Sliding Miner Sprite
-                    ctx.fillStyle = '#ff922b'; // Orange Outfit
-                    ctx.fillRect(px, py + 10, 36, 16);
-                    ctx.fillStyle = '#fcc419'; // Helmet
-                    ctx.fillRect(px + 22, py + 4, 14, 12);
-                    ctx.fillStyle = '#fff'; // Headlamp
-                    ctx.fillRect(px + 32, py + 6, 6, 4);
-
-                    // Golden Pickaxe glow if active
-                    if (this.powerups.pickaxe > 0) {
-                        ctx.fillStyle = '#fcc419';
-                        ctx.fillRect(px + 20, py, 18, 4);
-                    }
-                } else {
-                    // Running / Jumping Miner Sprite
-                    const legOffset = this.isJumping ? 4 : (this.runFrame % 2 === 0 ? 6 : -6);
-
-                    // Body
-                    ctx.fillStyle = '#1d4ed8'; // Blue Pants
-                    ctx.fillRect(px + 8, py + 26, 10, 16 + legOffset);
-                    ctx.fillRect(px + 18, py + 26, 10, 16 - legOffset);
-
-                    // Shirt & Speed Boots
-                    ctx.fillStyle = this.powerups.boots > 0 ? '#22d3ee' : '#ff922b';
-                    ctx.fillRect(px + 6, py + 14, 24, 14);
-
-                    // Head & Helmet
-                    ctx.fillStyle = '#ffedd5'; // Skin
-                    ctx.fillRect(px + 10, py + 6, 16, 10);
-                    ctx.fillStyle = '#fcc419'; // Yellow Hardhat
-                    ctx.fillRect(px + 6, py + 2, 22, 8);
-                    ctx.fillStyle = '#ffffff'; // Headlamp Beam
-                    ctx.fillRect(px + 24, py + 4, 6, 4);
-
-                    // Headlamp Light Cone Effect
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
-                    ctx.beginPath();
-                    ctx.moveTo(px + 28, py + 6);
-                    ctx.lineTo(px + 120, py - 20);
-                    ctx.lineTo(px + 140, py + 60);
-                    ctx.closePath();
-                    ctx.fill();
-
-                    // Pickaxe
-                    ctx.strokeStyle = this.powerups.pickaxe > 0 ? '#fcc419' : '#94a3b8';
-                    ctx.lineWidth = 4;
-                    ctx.beginPath();
-                    ctx.moveTo(px + 16, py + 18);
-                    ctx.lineTo(px + 32, py + 8 + (this.runFrame * 2));
-                    ctx.stroke();
-                }
-
-                ctx.restore();
-            }
-        };
-
-        // 2. CRYPTO BOULDER (PURSUER)
-        const cryptoBoulder = {
-            x: 80,
-            y: GROUND_Y - 90,
-            radius: 75,
-            rotation: 0,
-            cryptoLogos: ['₿', 'Ξ', '◎', '🐕'],
-
-            update(minerX, offset) {
-                this.rotation += (currentSpeed * 0.04);
-                this.x = minerX - offset - this.radius;
-                this.y = GROUND_Y - this.radius + 10;
-            },
-
-            draw(ctx) {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.rotation);
-
-                // Main Rock Body
-                ctx.fillStyle = '#334155';
-                ctx.beginPath();
-                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Rock Texture & Cracks
-                ctx.strokeStyle = '#1e293b';
-                ctx.lineWidth = 6;
-                ctx.beginPath();
-                ctx.arc(0, 0, this.radius - 3, 0, Math.PI * 2);
-                ctx.stroke();
-
-                // Glowing Engraved Crypto Symbols
-                ctx.font = '900 22px monospace';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-
-                const logoPositions = [
-                    { x: -30, y: -25, color: '#f59e0b', text: '₿' },
-                    { x: 30, y: -20, color: '#6366f1', text: 'Ξ' },
-                    { x: -25, y: 30, color: '#14f195', text: '◎' },
-                    { x: 25, y: 25, color: '#eab308', text: '🐕' }
-                ];
-
-                logoPositions.forEach(logo => {
-                    ctx.fillStyle = logo.color;
-                    ctx.fillText(logo.text, logo.x, logo.y);
-                });
-
-                ctx.restore();
-
-                // Dust Cloud behind boulder
-                ctx.fillStyle = 'rgba(148, 163, 184, 0.25)';
-                for (let i = 0; i < 3; i++) {
-                    const dustX = this.x - this.radius + (Math.random() * 20 - 10);
-                    const dustY = GROUND_Y - (Math.random() * 25);
-                    const dustR = 10 + Math.random() * 15;
-                    ctx.beginPath();
-                    ctx.arc(dustX, dustY, dustR, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-        };
-
-        // OBSTACLES, POWERUPS & COIN ARRAYS
+        // Game Entities & Physics
+        let player = { x: 220, y: 300, w: 28, h: 42, vy: 0, grounded: false, jumps: 0 };
+        let boulder = { x: 60, y: 260, r: 50, rotation: 0 };
         let obstacles = [];
-        let collectibles = [];
+        let coins = [];
         let particles = [];
-        let bgLayers = [];
+        let distanceRun = 0;
+        let animFrameId = null;
 
-        // PARALLAX BACKGROUND SETUP
-        function initBackground() {
-            bgLayers = [
-                // Layer 0: Far cavern wall with glowing crystals
-                { speedMult: 0.1, x: 0, items: [] },
-                // Layer 1: Midground cave pillars & magma
-                { speedMult: 0.3, x: 0, items: [] }
-            ];
+        const gravity = 0.65;
+        const jumpStrength = -11.5;
+        const groundY = 350;
 
-            // Generate background crystals
-            for (let i = 0; i < 15; i++) {
-                bgLayers[0].items.push({
-                    x: Math.random() * V_WIDTH * 2,
-                    y: 80 + Math.random() * 180,
-                    size: 8 + Math.random() * 12,
-                    color: ['#a855f7', '#22d3ee', '#38bdf8'][Math.floor(Math.random() * 3)]
-                });
-            }
+        function startGame() {
+            document.getElementById('menu-overlay').classList.add('hidden');
+            
+            // Reset Entities
+            player.y = groundY - player.h;
+            player.vy = 0;
+            player.grounded = true;
+            player.jumps = 0;
+            
+            boulder.x = 60;
+            boulder.rotation = 0;
+
+            obstacles = [];
+            coins = [];
+            particles = [];
+            distanceRun = 0;
+            state.coins = 0;
+            state.isPlaying = true;
+
+            lastTime = performance.now();
+            if (animFrameId) cancelAnimationFrame(animFrameId);
+            gameLoop();
         }
 
-        let spawnTimer = 0;
+        let lastTime = 0;
+        let obstacleTimer = 0;
+        let coinTimer = 0;
 
-        function spawnEntities() {
-            spawnTimer++;
+        function gameLoop() {
+            if (!state.isPlaying) return;
 
-            // Obstacle Spawning (~every 100-140 frames)
-            if (spawnTimer % Math.floor(1100 / currentSpeed) === 0) {
-                const rand = Math.random();
+            update();
+            render();
 
-                if (rand < 0.45) {
-                    // Stalagmites / Rock Obstacle (Jump over)
+            animFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function update() {
+            const currentStage = STAGES[state.currentStageIdx];
+            distanceRun += currentStage.speed * 0.1;
+
+            // Player Physics
+            player.vy += gravity;
+            player.y += player.vy;
+
+            if (player.y >= groundY - player.h) {
+                player.y = groundY - player.h;
+                player.vy = 0;
+                player.grounded = true;
+                player.jumps = 0;
+            }
+
+            // Boulder mechanics
+            boulder.rotation += 0.05;
+            // Slowly creep boulder closer if player makes mistakes, or keep steady
+            boulder.x = 70 + Math.sin(distanceRun * 0.05) * 10;
+
+            // Spawn Obstacles
+            obstacleTimer++;
+            if (obstacleTimer > 100 - (state.currentStageIdx * 8)) {
+                if (Math.random() < 0.7) {
                     obstacles.push({
-                        type: 'rock',
-                        x: V_WIDTH + 40,
-                        y: GROUND_Y - 32,
-                        width: 28,
-                        height: 32,
-                        destructible: true
-                    });
-                } else if (rand < 0.75) {
-                    // Hanging Cave Cable / Ceiling Spike (Slide under)
-                    obstacles.push({
-                        type: 'ceiling_spike',
-                        x: V_WIDTH + 40,
-                        y: GROUND_Y - 80,
-                        width: 32,
-                        height: 42,
-                        destructible: false
-                    });
-                } else {
-                    // Red Bear Market Lava Pit (Precision Jump)
-                    obstacles.push({
-                        type: 'lava_pit',
-                        x: V_WIDTH + 40,
-                        y: GROUND_Y - 6,
-                        width: 60,
-                        height: 12,
-                        destructible: false
+                        x: canvas.width + 30,
+                        y: groundY - 30,
+                        w: 24,
+                        h: 30
                     });
                 }
+                obstacleTimer = 0;
             }
 
-            // Collectible & Powerup Spawning
-            if (spawnTimer % 60 === 0) {
-                const rand = Math.random();
-                const coinY = GROUND_Y - (rand > 0.5 ? 80 : 30);
-
-                if (rand < 0.7) {
-                    // Coin Line
-                    for (let c = 0; c < 3; c++) {
-                        collectibles.push({
-                            type: 'coin',
-                            x: V_WIDTH + (c * 28),
-                            y: coinY,
-                            radius: 10,
-                            symbol: ['₿', 'Ξ', '◎'][Math.floor(Math.random() * 3)]
-                        });
-                    }
-                } else if (rand < 0.85) {
-                    // Golden Pickaxe Power-up
-                    collectibles.push({
-                        type: 'powerup_pickaxe',
-                        x: V_WIDTH + 30,
-                        y: GROUND_Y - 70,
-                        radius: 14
-                    });
-                } else {
-                    // Diamond Boots Power-up
-                    collectibles.push({
-                        type: 'powerup_boots',
-                        x: V_WIDTH + 30,
-                        y: GROUND_Y - 70,
-                        radius: 14
-                    });
-                }
-            }
-        }
-
-        function createExplosion(x, y, color, count = 12) {
-            for (let i = 0; i < count; i++) {
-                particles.push({
-                    x: x,
-                    y: y,
-                    vx: (Math.random() - 0.5) * 8,
-                    vy: (Math.random() - 0.5) * 8,
-                    radius: 3 + Math.random() * 4,
-                    color: color,
-                    life: 25
+            // Spawn Coins
+            coinTimer++;
+            if (coinTimer > 60) {
+                coins.push({
+                    x: canvas.width + 20,
+                    y: groundY - 50 - Math.random() * 60,
+                    r: 8
                 });
-            }
-        }
-
-        function gameLoop(timestamp) {
-            if (!gameRunning) return;
-
-            if (!gamePaused) {
-                updateGame();
-                renderGame();
+                coinTimer = 0;
             }
 
-            animationFrameId = requestAnimationFrame(gameLoop);
-        }
-
-        function updateGame() {
-            // Speed scaling over distance
-            distanceMeters += Math.floor(currentSpeed * 0.1);
-            currentSpeed = baseSpeed + (distanceMeters * 0.0015);
-
-            // Speed boots active boost
-            const effectiveSpeed = miner.powerups.boots > 0 ? currentSpeed * 1.35 : currentSpeed;
-
-            // Boulder distance recovery when running cleanly
-            if (boulderOffset < MAX_BOULDER_DIST) {
-                boulderOffset += 0.15;
-            }
-
-            // Update Miner & Boulder
-            miner.update();
-            cryptoBoulder.update(miner.x, boulderOffset);
-
-            // Check if Boulder crushed Miner
-            if (boulderOffset <= MIN_BOULDER_DIST) {
-                triggerGameOver();
-                return;
-            }
-
-            // Update Parallax Background
-            bgLayers.forEach(layer => {
-                layer.x -= effectiveSpeed * layer.speedMult;
-                if (layer.x <= -V_WIDTH) layer.x = 0;
-            });
-
-            // Update Obstacles
+            // Move & Collide Obstacles
             for (let i = obstacles.length - 1; i >= 0; i--) {
-                const obs = obstacles[i];
-                obs.x -= effectiveSpeed;
+                let obs = obstacles[i];
+                obs.x -= currentStage.speed;
 
-                // Collision Detection with Miner
-                if (checkCollision(miner, obs)) {
-                    if (miner.powerups.pickaxe > 0 && obs.destructible) {
-                        // Golden Pickaxe Smashes Rock!
-                        createExplosion(obs.x + obs.width / 2, obs.y + obs.height / 2, '#fcc419', 16);
-                        soundEngine.playSmash();
-                        obstacles.splice(i, 1);
-                        continue;
-                    } else if (miner.invulnerableTimer === 0) {
-                        // Stumble / Hit Obstacle!
-                        soundEngine.playHit();
-                        createExplosion(miner.x + 10, miner.y + 10, '#ff6b6b', 10);
-                        miner.invulnerableTimer = 50; // Invulnerability frames
-                        boulderOffset -= 75; // Boulder gains on miner!
-
-                        // Camera Shake Effect on UI
-                        document.querySelector('main').classList.add('shake');
-                        setTimeout(() => document.querySelector('main').classList.remove('shake'), 400);
-
-                        if (obs.type === 'lava_pit') {
-                            boulderOffset -= 40; // Heavy penalty for lava pit
-                        }
-                    }
-                }
-
-                // Remove off-screen obstacles
-                if (obs.x + obs.width < -50) {
+                // AABB Collision Check
+                if (
+                    player.x < obs.x + obs.w &&
+                    player.x + player.w > obs.x &&
+                    player.y < obs.y + obs.h &&
+                    player.y + player.h > obs.y
+                ) {
+                    // Hit obstacle -> Player trips back toward boulder
+                    boulder.x += 25;
                     obstacles.splice(i, 1);
-                }
-            }
-
-            // Update Collectibles
-            for (let i = collectibles.length - 1; i >= 0; i--) {
-                const item = collectibles[i];
-                item.x -= effectiveSpeed;
-
-                // Check Pickup
-                const dist = Math.hypot((miner.x + miner.width / 2) - item.x, (miner.y + miner.height / 2) - item.y);
-                if (dist < miner.width / 2 + item.radius) {
-                    if (item.type === 'coin') {
-                        coinsCollected++;
-                        soundEngine.playCoin();
-                        createExplosion(item.x, item.y, '#fcc419', 6);
-                    } else if (item.type === 'powerup_pickaxe') {
-                        miner.powerups.pickaxe = 300; // ~5 sec duration
-                        soundEngine.playPowerup();
-                        createExplosion(item.x, item.y, '#fcc419', 14);
-                    } else if (item.type === 'powerup_boots') {
-                        miner.powerups.boots = 300; // ~5 sec duration
-                        soundEngine.playPowerup();
-                        createExplosion(item.x, item.y, '#22d3ee', 14);
+                    if (boulder.x + boulder.r >= player.x) {
+                        gameOver(false);
+                        return;
                     }
-                    collectibles.splice(i, 1);
                     continue;
                 }
 
-                if (item.x < -30) collectibles.splice(i, 1);
+                if (obs.x < -40) obstacles.splice(i, 1);
             }
 
-            // Update Particles
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life--;
-                if (p.life <= 0) particles.splice(i, 1);
+            // Move & Collect Coins
+            for (let i = coins.length - 1; i >= 0; i--) {
+                let c = coins[i];
+                c.x -= currentStage.speed;
+
+                // Distance Check
+                let dx = (player.x + player.w/2) - c.x;
+                let dy = (player.y + player.h/2) - c.y;
+                if (Math.sqrt(dx*dx + dy*dy) < player.w/2 + c.r) {
+                    state.coins++;
+                    state.totalCoins++;
+                    localStorage.setItem('ce_coins', state.totalCoins);
+                    document.getElementById('total-coins-display').innerText = state.totalCoins;
+                    coins.splice(i, 1);
+                    continue;
+                }
+
+                if (c.x < -20) coins.splice(i, 1);
             }
 
-            // Spawn fresh entities
-            spawnEntities();
-
-            // Update HUD
-            document.getElementById('hud-coins').innerText = coinsCollected;
-            document.getElementById('hud-distance').innerText = `${distanceMeters}m`;
-            updatePowerupHUD();
+            // Check Win Condition
+            if (distanceRun >= currentStage.target) {
+                gameOver(true);
+            }
         }
 
-        function renderGame() {
-            // Clear Stage
-            ctx.fillStyle = '#090814';
-            ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+        function render() {
+            const currentStage = STAGES[state.currentStageIdx];
 
-            // Draw Parallax Cave Background
-            bgLayers.forEach(layer => {
-                layer.items.forEach(item => {
-                    ctx.fillStyle = item.color;
-                    ctx.beginPath();
-                    ctx.arc((item.x + layer.x) % V_WIDTH, item.y, item.size, 0, Math.PI * 2);
-                    ctx.fill();
-                });
-            });
+            // Background Gradient
+            let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grad.addColorStop(0, currentStage.bgTop);
+            grad.addColorStop(1, currentStage.bgBot);
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw Underground Cave Floor / Ground Track
-            ctx.fillStyle = '#1e1b4b';
-            ctx.fillRect(0, GROUND_Y, V_WIDTH, V_HEIGHT - GROUND_Y);
-            ctx.fillStyle = '#312e81';
-            ctx.fillRect(0, GROUND_Y, V_WIDTH, 4);
+            // Ground
+            ctx.fillStyle = "#161224";
+            ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
+            ctx.fillStyle = "#ffb703";
+            ctx.fillRect(0, groundY, canvas.width, 3);
 
-            // Draw Lava Pits & Ground Obstacles
+            // Draw Obstacles
+            ctx.fillStyle = "#e63946";
             obstacles.forEach(obs => {
-                if (obs.type === 'rock') {
-                    ctx.fillStyle = '#64748b';
-                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                    ctx.fillStyle = '#475569';
-                    ctx.fillRect(obs.x + 4, obs.y + 4, obs.width - 8, obs.height - 8);
-                } else if (obs.type === 'ceiling_spike') {
-                    ctx.fillStyle = '#ef4444';
-                    ctx.beginPath();
-                    ctx.moveTo(obs.x, obs.y);
-                    ctx.lineTo(obs.x + obs.width / 2, obs.y + obs.height);
-                    ctx.lineTo(obs.x + obs.width, obs.y);
-                    ctx.closePath();
-                    ctx.fill();
-                } else if (obs.type === 'lava_pit') {
-                    ctx.fillStyle = '#ff4500';
-                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                    ctx.fillStyle = '#fcc419';
-                    ctx.fillRect(obs.x + 4, obs.y + 2, obs.width - 8, 3);
-                }
-            });
-
-            // Draw Collectibles & Powerups
-            collectibles.forEach(item => {
-                ctx.save();
-                ctx.translate(item.x, item.y);
-
-                if (item.type === 'coin') {
-                    ctx.fillStyle = '#fcc419';
-                    ctx.beginPath();
-                    ctx.arc(0, 0, item.radius, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.fillStyle = '#000';
-                    ctx.font = 'bold 11px monospace';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(item.symbol, 0, 1);
-                } else if (item.type === 'powerup_pickaxe') {
-                    ctx.fillStyle = '#a855f7';
-                    ctx.beginPath();
-                    ctx.arc(0, 0, item.radius, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.fillStyle = '#fff';
-                    ctx.font = '12px monospace';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText('⛏️', 0, 0);
-                } else if (item.type === 'powerup_boots') {
-                    ctx.fillStyle = '#22d3ee';
-                    ctx.beginPath();
-                    ctx.arc(0, 0, item.radius, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.fillStyle = '#fff';
-                    ctx.font = '12px monospace';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText('⚡', 0, 0);
-                }
-
-                ctx.restore();
-            });
-
-            // Draw Miner & Boulder
-            miner.draw(ctx);
-            cryptoBoulder.draw(ctx);
-
-            // Draw Particles
-            particles.forEach(p => {
-                ctx.fillStyle = p.color;
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.moveTo(obs.x, obs.y + obs.h);
+                ctx.lineTo(obs.x + obs.w/2, obs.y);
+                ctx.lineTo(obs.x + obs.w, obs.y + obs.h);
+                ctx.closePath();
                 ctx.fill();
             });
-        }
 
-        function checkCollision(rect1, rect2) {
-            return (
-                rect1.x < rect2.x + rect2.width &&
-                rect1.x + rect1.width > rect2.x &&
-                rect1.y < rect2.y + rect2.height &&
-                rect1.y + rect1.height > rect2.y
-            );
-        }
+            // Draw Coins
+            ctx.fillStyle = "#ffb703";
+            coins.forEach(c => {
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+                ctx.fill();
+            });
 
-        function updatePowerupHUD() {
-            const hud = document.getElementById('powerup-hud');
-            hud.innerHTML = '';
+            // Draw Player (Miner Sprinting)
+            ctx.fillStyle = "#2ec4b6";
+            ctx.fillRect(player.x, player.y, player.w, player.h);
+            // Miner Helmet
+            ctx.fillStyle = "#ffb703";
+            ctx.fillRect(player.x - 2, player.y - 4, player.w + 4, 8);
 
-            if (miner.powerups.pickaxe > 0) {
-                const sec = (miner.powerups.pickaxe / 60).toFixed(1);
-                hud.innerHTML += `<div class="bg-pixel-purple/90 border border-white text-white text-[10px] px-2 py-1 rounded font-mono font-bold flex items-center gap-1">⛏️ PICKAXE: ${sec}s</div>`;
-            }
-            if (miner.powerups.boots > 0) {
-                const sec = (miner.powerups.boots / 60).toFixed(1);
-                hud.innerHTML += `<div class="bg-pixel-cyan/90 border border-white text-black text-[10px] px-2 py-1 rounded font-mono font-bold flex items-center gap-1">⚡ BOOTS: ${sec}s</div>`;
-            }
-        }
+            // Draw Boulder (Chasing Crypto Rock)
+            ctx.save();
+            ctx.translate(boulder.x, boulder.y);
+            ctx.rotate(boulder.rotation);
+            ctx.fillStyle = currentStage.rockColor;
+            ctx.beginPath();
+            ctx.arc(0, 0, boulder.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#000";
+            ctx.font = "bold 14px 'Courier New'";
+            ctx.textAlign = "center";
+            ctx.fillText("CRYPTO", 0, 4);
+            ctx.restore();
 
-        // KEYBOARD CONTROLS
-        window.addEventListener('keydown', (e) => {
-            if (!gameRunning || gamePaused) return;
-
-            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
-                e.preventDefault();
-                miner.jump();
-            } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
-                e.preventDefault();
-                miner.slide();
-            } else if (e.code === 'KeyP') {
-                togglePause();
-            }
-        });
-
-        // TOUCH CONTROLS (ON-SCREEN BUTTONS & CANVAS SWIPE)
-        const btnJump = document.getElementById('btn-touch-jump');
-        const btnSlide = document.getElementById('btn-touch-slide');
-
-        btnJump.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            if (gameRunning && !gamePaused) miner.jump();
-        });
-
-        btnSlide.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            if (gameRunning && !gamePaused) miner.slide();
-        });
-
-        // Mouse click on canvas triggers jump
-        canvas.addEventListener('mousedown', () => {
-            if (gameRunning && !gamePaused) miner.jump();
-        });
-
-        function startGame() {
-            document.getElementById('screen-start').classList.add('hidden');
-            resetGameVars();
-            gameRunning = true;
-            gamePaused = false;
-            soundEngine.init();
-            requestAnimationFrame(gameLoop);
-        }
-
-        function restartGame() {
-            document.getElementById('screen-gameover').classList.add('hidden');
-            resetGameVars();
-            gameRunning = true;
-            gamePaused = false;
-            requestAnimationFrame(gameLoop);
-        }
-
-        function resetGameVars() {
-            distanceMeters = 0;
-            coinsCollected = 0;
-            currentSpeed = baseSpeed;
-            boulderOffset = 180;
-            spawnTimer = 0;
-            obstacles = [];
-            collectibles = [];
-            particles = [];
-            miner.reset();
-            initBackground();
-            document.getElementById('hud-highscore').innerText = `${highScore}m`;
-        }
-
-        function togglePause() {
-            if (!gameRunning) return;
-            gamePaused = !gamePaused;
-            const pauseScreen = document.getElementById('screen-pause');
-            const pauseIcon = document.getElementById('pause-icon');
-
-            if (gamePaused) {
-                pauseScreen.classList.remove('hidden');
-                pauseIcon.className = "fa-solid fa-play";
-            } else {
-                pauseScreen.classList.add('hidden');
-                pauseIcon.className = "fa-solid fa-pause";
-            }
-        }
-
-        function resetGameToStart() {
-            gameRunning = false;
-            gamePaused = false;
-            document.getElementById('screen-pause').classList.add('hidden');
-            document.getElementById('screen-start').classList.remove('hidden');
-        }
-
-        function triggerGameOver() {
-            gameRunning = false;
-            soundEngine.playGameOver();
-
-            // Save High Score
-            if (distanceMeters > highScore) {
-                highScore = distanceMeters;
-                localStorage.setItem('crypto_escape_highscore', highScore.toString());
-            }
-
-            const totalScore = distanceMeters + (coinsCollected * 25);
-
-            document.getElementById('go-distance').innerText = `${distanceMeters}m`;
-            document.getElementById('go-coins').innerText = coinsCollected;
-            document.getElementById('go-score').innerText = `${totalScore} pts`;
-            document.getElementById('go-highscore').innerText = `${highScore}m`;
-
-            document.getElementById('screen-gameover').classList.remove('hidden');
-        }
-
-        function toggleSound() {
-            soundEngine.enabled = !soundEngine.enabled;
-            const icon = document.getElementById('sound-icon');
-            icon.className = soundEngine.enabled ? "fa-solid fa-volume-high" : "fa-solid fa-volume-xmark text-pixel-red";
-        }
-
-        function shareScore() {
-            const text = `🎮 I survived ${distanceMeters}m in Crypto Escape before getting crushed by the Crypto Boulder! Can you beat my high score? ⛏️💥`;
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text);
-                alert("Score card copied to clipboard!");
-            } else {
-                alert(text);
-            }
-        }
-
-        /* RESPONSIVE CANVAS RESIZING */
-        function resizeCanvas() {
-            const container = canvas.parentElement;
-            canvas.width = V_WIDTH;
-            canvas.height = V_HEIGHT;
-        }
-
-        window.addEventListener('resize', resizeCanvas);
-
-        // INITIALIZATION
-        window.onload = function () {
-            resizeCanvas();
-            document.getElementById('hud-highscore').innerText = `${highScore}m`;
-            initBackground();
-            renderGame(); // Initial menu static render
-        };
-    </script>
-</body>
-</html>
+            // UI Text Overlay
+            ctx.fillStyle = "#fff";
+            ctx.font = "bold 16px 'Courier New'";
+            ctx.fillText(`DISTANCE: ${Math.floor(distanceRun)}m / ${currentStage.target}m`, 20,
